@@ -51,6 +51,14 @@ function start(opts) {
       token = statsToken;
     }
 
+    if (opts.remove) {
+      opts.remove.forEach(element => {
+        if (obj.hasOwnProperty(element)) { 
+          delete obj[element.trim()];
+        }
+      });
+    }
+
     if (token) {
       this.push(token);
       this.push(' ');
@@ -156,7 +164,8 @@ function cli() {
       'secure': 's',
       'json': 'j',
       'statsinterval': 'i',
-      'add': 'a'
+      'add': 'a',
+      'remove': 'r'
     },
     default: {
       json: false,
@@ -166,6 +175,7 @@ function cli() {
       dockerEvents: true,
       statsinterval: 30,
       add: [ 'host=' + os.hostname() ],
+      remove: false,
       token: process.env.LOGENTRIES_TOKEN,
       logstoken: process.env.LOGENTRIES_LOGSTOKEN || process.env.LOGENTRIES_TOKEN,
       statstoken: process.env.LOGENTRIES_STATSTOKEN || process.env.LOGENTRIES_TOKEN,
@@ -180,6 +190,7 @@ function cli() {
                 '                         [-t TOKEN] [--secure] [--json]\n' +
                 '                         [--no-newline] [--no-stats] [--no-logs] [--no-dockerEvents]\n' +
                 '                         [-i STATSINTERVAL] [-a KEY=VALUE]\n' +
+                '                         [-r image,time]\n' +
                 '                         [--matchByImage REGEXP] [--matchByName REGEXP]\n' +
                 '                         [--skipByImage REGEXP] [--skipByName REGEXP]\n' +
                 '                         [--server HOSTNAME] [--port PORT]\n' +
@@ -212,6 +223,10 @@ function cli() {
     acc[arg[0]] = arg[1];
     return acc
   }, {});
+
+  if (argv.remove) {
+    argv.remove = argv.remove.split(',');
+  }
 
   start(argv);
 }
